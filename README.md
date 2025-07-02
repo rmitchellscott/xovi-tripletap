@@ -7,7 +7,29 @@ A power button handler for reMarkable devices that enables starting [xovi](https
 
 Original script concept by [@FouzR](https://github.com/FouzR).
 
+## Disclaimer
+
+  **USE AT YOUR OWN RISK**
+
+  This software is provided "as is" without warranty of any kind, express or implied. The author makes no representations or warranties regarding
+  the safety, reliability, or suitability of this software for any purpose.
+
+  By using this software, you acknowledge and agree that:
+
+  - You use this software entirely at your own risk
+  - The author shall not be held liable for any damage, loss of data, device malfunction, or other issues that may arise from the use of this
+  software
+  - This software modifies system files and services on your reMarkable device, which could potentially cause system instability
+  - You are responsible for backing up your device and data before installation
+  - You understand that installing third-party software on your reMarkable device
+  - Support, updates, or bug fixes are provided on a best effort basis with no guarantee of availability or timeline
+
+  **Proceed only if you understand and accept these risks.**
+
 ## Installation
+
+> [!CAUTION]
+> Piping code from the internet directly into `bash` can be dangerous. Make sure you trust the source and know what it will do to your system.
 
 Run the automated installer on your reMarkable device:
 
