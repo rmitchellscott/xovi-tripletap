@@ -21,7 +21,6 @@ Original script concept by [@FouzR](https://github.com/FouzR).
   software
   - This software modifies system files and services on your reMarkable device, which could potentially cause system instability
   - You are responsible for backing up your device and data before installation
-  - You understand that installing third-party software on your reMarkable device
   - Support, updates, or bug fixes are provided on a best effort basis with no guarantee of availability or timeline
 
   **Proceed only if you understand and accept these risks.**
