@@ -5,25 +5,32 @@ BUTTON_PRESSES=0
 LAST_PRESS_TIME=0
 TIME_THRESHOLD=2  # seconds between presses to be considered consecutive
 REQUIRED_PRESSES=3
-INPUT_DEVICE="/dev/input/event0"  # Change this to match your button device
+
+# Detect device model and set appropriate input device
+if grep -q "reMarkable 1.0" /proc/device-tree/model 2>/dev/null; then
+    INPUT_DEVICE="/dev/input/event1"
+else
+    INPUT_DEVICE="/dev/input/event0"
+fi
+
 EVTEST_PATH="/home/root/xovi-tripletap/evtest"  # Change this to your evtest executable path
 
 # Check if evtest executable exists and is executable
 if [ ! -x "$EVTEST_PATH" ]; then
-    logger "Error: evtest not found or not executable at $EVTEST_PATH"
+    echo "Error: evtest not found or not executable at $EVTEST_PATH"
     exit 1
 fi
 
 # Function to run when button sequence is detected
 trigger_action() {
-    logger "Button sequence detected - running action script"
+    echo "Button sequence detected - running action script"
     /home/root/xovi/start  # Replace with your script path
 }
 
 # Monitor input events
 "$EVTEST_PATH" "$INPUT_DEVICE" | while read line; do
-    # Look for button press events
-    if echo "$line" | grep -q "type 1 (EV_KEY), code .*, value 1"; then
+    # Look for button press events (key code 116 only)
+    if echo "$line" | grep -q "type 1 (EV_KEY), code 116.*, value 1"; then
         CURRENT_TIME=$(date +%s)
         
         # Check if this press is within the time threshold of the last press
