@@ -53,6 +53,15 @@ chmod +x enable.sh
 cp "$SOURCE_DIR/uninstall.sh" .
 chmod +x uninstall.sh
 
+echo "Creating version file..."
+if [ -n "$LATEST_RELEASE" ]; then
+    echo "$LATEST_RELEASE" > version.txt
+    echo "Installed version: $LATEST_RELEASE"
+else
+    echo "main-$(date +%Y%m%d)" > version.txt
+    echo "Installed version: main branch ($(date +%Y%m%d))"
+fi
+
 echo "Cleaning up temporary files..."
 rm -rf "$SOURCE_DIR" *.zip
 

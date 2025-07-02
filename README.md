@@ -97,6 +97,11 @@ systemctl disable xovi-tripletap
 journalctl -u xovi-tripletap -f
 ```
 
+## reMarkable 1
+Four times the buttons, four times the fun!
+
+Feel free to tweak the main.sh script to handle other button presses. I've included a press-and-hold.sh script as an example, which lets you configure one of the buttons to launch xovi if you hold it for 3 seconds.
+
 ## License
 
 This project is licensed under the MIT License - see the LICENSE file for details.
