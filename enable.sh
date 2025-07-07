@@ -10,7 +10,7 @@ if grep -q "reMarkable Ferrari" /proc/device-tree/model 2>/dev/null; then
 fi
 
 echo "Installing systemd service..."
-cp xovi-tripletap.service /etc/systemd/system/
+cp /home/root/xovi-tripletap/xovi-tripletap.service /etc/systemd/system/
 
 echo "Reloading systemd daemon..."
 systemctl daemon-reload
