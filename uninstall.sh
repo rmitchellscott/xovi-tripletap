@@ -11,8 +11,8 @@ echo "Disabling xovi-tripletap service..."
 systemctl disable xovi-tripletap || true
 
 echo "Detecting device type for filesystem handling..."
-if grep -q "reMarkable Paper Pro" /proc/device-tree/model 2>/dev/null; then
-    echo "Detected reMarkable Paper Pro - remounting filesystem..."
+if grep -qE "reMarkable (Ferrari|Chiappa)" /proc/device-tree/model 2>/dev/null; then
+    echo "Detected reMarkable Paper Pro family - remounting filesystem..."
     mount -o remount,rw /
     umount -R /etc || true
 fi
