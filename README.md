@@ -98,6 +98,77 @@ systemctl disable xovi-tripletap
 journalctl -u xovi-tripletap -f
 ```
 
+## Version Awareness
+
+This feature automatically switches xovi's qt-resource-rebuilder directory between different versions based on your reMarkable's OS version. This is useful when updating your device's firmware or dualbooting, as different OS versions require different hashtabs and may support different qmd files.
+
+### Initial Setup
+
+To enable version switching for qt-resource-rebuilder, run:
+
+```bash
+xovi-tripletap/init-version-switching.sh
+```
+
+This will:
+- Create a version-specific copy of your current qt-resource-rebuilder folder
+- Replace the original folder with a symlink that points to the version-specific copy
+- Enable automatic version detection and switching
+
+### After OS Updates
+
+When you update your reMarkable's OS version:
+
+1. Run the preparation script:
+   ```bash
+   xovi-tripletap/prepare-new-version.sh
+   ```
+
+2. This creates a new version-specific folder for the new OS version
+
+3. Regenerate hashtabs for the new OS version using your normal xovi workflow
+
+### How It Works
+
+- The version switcher detects your OS version using system configuration files
+- When xovi is triggered via triple-tap, it automatically checks if the correct version is linked
+- Version-specific folders are named like: `qt-resource-rebuilder-3.22.0.64`
+- The system maintains separate hashtabs for each OS version
+
+### Managing Versions
+
+```bash
+# List all available versions
+xovi-tripletap/prepare-new-version.sh --list
+
+# Manually switch versions (happens automatically on triple-tap)
+xovi-tripletap/version-switcher.sh
+
+# Disable version switching and restore qt-resource-rebuilder as a regular folder
+xovi-tripletap/disable-version-switching.sh
+```
+
+### Disabling Version Switching
+
+If you want to disable version switching and return to a standard qt-resource-rebuilder setup:
+
+```bash
+xovi-tripletap/disable-version-switching.sh
+```
+
+This will:
+- Copy the currently active version back to the main qt-resource-rebuilder location
+- Remove the symlink and replace it with a regular directory
+- Preserve all version-specific directories (you can manually delete them if desired)
+
+Note: The uninstall script automatically disables version switching to ensure xovi continues working after xovi-tripletap is removed.
+
+### Notes
+
+- Version switching is optional - xovi will continue to work normally without it
+- If qt-resource-rebuilder exists as a regular folder (not a symlink), it will be used as-is
+- All logs from version switching are captured in journalctl alongside the main service logs
+
 ## reMarkable 1
 Four times the buttons, four times the fun!
 
