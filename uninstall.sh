@@ -23,6 +23,12 @@ rm -f /etc/systemd/system/xovi-tripletap.service
 echo "Reloading systemd daemon..."
 systemctl daemon-reload
 
+echo "Checking for version switching..."
+if [ -f "$INSTALL_DIR/disable-version-switching.sh" ]; then
+    echo "Disabling qt-resource-rebuilder version switching..."
+    "$INSTALL_DIR/disable-version-switching.sh" --force
+fi
+
 echo "Removing installation directory..."
 rm -rf "$INSTALL_DIR"
 

@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# Configuration
+ENABLE_VERSION_SWITCHING=true  # Set to false to disable qt-resource-rebuilder version switching
+
 # Initialize variables
 BUTTON_PRESSES=0
 LAST_PRESS_TIME=0
@@ -21,9 +24,21 @@ if [ ! -x "$EVTEST_PATH" ]; then
     exit 1
 fi
 
+# Source version switcher if available and enabled
+if [ "$ENABLE_VERSION_SWITCHING" = "true" ] && [ -f "/home/root/xovi-tripletap/version-switcher.sh" ]; then
+    source /home/root/xovi-tripletap/version-switcher.sh
+fi
+
 # Function to run when button sequence is detected
 trigger_action() {
     echo "Button sequence detected - running action script"
+
+    # Attempt to switch qt-resource-rebuilder version if enabled and function exists
+    if [ "$ENABLE_VERSION_SWITCHING" = "true" ] && type switch_qt_resource_version >/dev/null 2>&1; then
+        echo "Checking qt-resource-rebuilder version..."
+        switch_qt_resource_version
+    fi
+
     /home/root/xovi/start  # Replace with your script path
 }
 
