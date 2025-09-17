@@ -2,6 +2,7 @@
 
 # Configuration
 ENABLE_VERSION_SWITCHING=true  # Set to false to disable qt-resource-rebuilder version switching
+TRIGGER_ACTION="start"  # Action when triple-press triggered: "start" (always start) or "toggle" (on/off)
 
 # Initialize variables
 BUTTON_PRESSES=0
@@ -33,13 +34,26 @@ fi
 trigger_action() {
     echo "Button sequence detected - running action script"
 
-    # Attempt to switch qt-resource-rebuilder version if enabled and function exists
+    # Check qt-resource-rebuilder version if enabled
     if [ "$ENABLE_VERSION_SWITCHING" = "true" ] && type switch_qt_resource_version >/dev/null 2>&1; then
         echo "Checking qt-resource-rebuilder version..."
         switch_qt_resource_version
     fi
 
-    /home/root/xovi/start  # Replace with your script path
+    # Handle toggle mode
+    if [ "$TRIGGER_ACTION" = "toggle" ]; then
+        # Check if xovi is running by looking for the LD_PRELOAD in service environment
+        if systemctl show xochitl.service --property=Environment | grep -q "LD_PRELOAD=/home/root/xovi/xovi.so"; then
+            echo "xovi is currently running - disabling it"
+            /home/root/xovi/stock
+        else
+            echo "xovi is not running - starting it"
+            /home/root/xovi/start
+        fi
+    else
+        # Default "start" mode - always run start
+        /home/root/xovi/start
+    fi
 }
 
 # Monitor input events

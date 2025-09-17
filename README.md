@@ -55,7 +55,17 @@ The installer will:
 
 ## What it does
 
-The service monitors power button input and executes `/home/root/xovi/start` when a triple-press is detected.
+The service monitors power button input and triggers xovi when a triple-press is detected. By default, it will always start xovi (or restart it if already running).
+
+You can configure it to toggle xovi on/off by editing `/home/root/xovi-tripletap/main.sh` and changing:
+```bash
+TRIGGER_ACTION="toggle"
+```
+Restart the service or reboot the tablet for the change to take effect: `systemctl restart xovi-tripletap`
+
+### Behavior modes:
+- **`"start"` (default)**: Always runs `/home/root/xovi/start` when triggered, even if xovi is already running
+- **`"toggle"`**: Toggles xovi - starts it if not running, stops it (runs `/home/root/xovi/stock`) if already running
 
 ## Uninstall
 
