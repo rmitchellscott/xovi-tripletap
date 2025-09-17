@@ -53,6 +53,18 @@ chmod +x enable.sh
 cp "$SOURCE_DIR/uninstall.sh" .
 chmod +x uninstall.sh
 
+cp "$SOURCE_DIR/version-switcher.sh" .
+chmod +x version-switcher.sh
+
+cp "$SOURCE_DIR/init-version-switching.sh" .
+chmod +x init-version-switching.sh
+
+cp "$SOURCE_DIR/prepare-new-version.sh" .
+chmod +x prepare-new-version.sh
+
+cp "$SOURCE_DIR/disable-version-switching.sh" .
+chmod +x disable-version-switching.sh
+
 echo "Creating version file..."
 if [ -n "$LATEST_RELEASE" ]; then
     echo "$LATEST_RELEASE" > version.txt
