@@ -64,8 +64,8 @@ TRIGGER_ACTION="toggle"
 Restart the service or reboot the tablet for the change to take effect: `systemctl restart xovi-tripletap`
 
 ### Behavior modes:
-- **`"start"` (default)**: Always runs `/home/root/xovi/start` when triggered, even if xovi is already running
-- **`"toggle"`**: Toggles xovi - starts it if not running, stops it (runs `/home/root/xovi/stock`) if already running
+- `"start"` (default): Always runs `/home/root/xovi/start` when triggered, even if xovi is already running
+- `"toggle"`: Toggles xovi - starts it if not running, stops it (runs `/home/root/xovi/stock`) if already running
 
 ## Uninstall
 
