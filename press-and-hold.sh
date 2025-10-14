@@ -3,6 +3,8 @@
 # Initialize variables
 TARGET_KEY="KEY_LEFT"  # Configurable key to monitor (KEY_HOME, KEY_LEFT, KEY_RIGHT, KEY_POWER, KEY_WAKEUP)
 HOLD_TIME=3           # Hold time in seconds
+ENABLE_VERSION_SWITCHING=true  # Set to false to disable qt-resource-rebuilder version switching
+TRIGGER_ACTION="start"  # Action when hold triggered: "start" (always start) or "toggle" (on/off)
 
 # Key name to code mapping
 get_key_code() {
@@ -37,10 +39,35 @@ if [ ! -x "$EVTEST_PATH" ]; then
     exit 1
 fi
 
+# Source version switcher if available and enabled
+if [ "$ENABLE_VERSION_SWITCHING" = "true" ] && [ -f "/home/root/xovi-tripletap/version-switcher.sh" ]; then
+    source /home/root/xovi-tripletap/version-switcher.sh
+fi
+
 # Function to run when button hold is detected
 trigger_action() {
     echo "Button hold detected - running action script"
-    /home/root/xovi/start
+
+    # Check qt-resource-rebuilder version if enabled
+    if [ "$ENABLE_VERSION_SWITCHING" = "true" ] && type switch_qt_resource_version >/dev/null 2>&1; then
+        echo "Checking qt-resource-rebuilder version..."
+        switch_qt_resource_version
+    fi
+
+    # Handle toggle mode
+    if [ "$TRIGGER_ACTION" = "toggle" ]; then
+        # Check if xovi is running by looking for the LD_PRELOAD in service environment
+        if systemctl show xochitl.service --property=Environment | grep -q "LD_PRELOAD=/home/root/xovi/xovi.so"; then
+            echo "xovi is currently running - disabling it"
+            /home/root/xovi/stock
+        else
+            echo "xovi is not running - starting it"
+            /home/root/xovi/start
+        fi
+    else
+        # Default "start" mode - always run start
+        /home/root/xovi/start
+    fi
 }
 
 # Variables to track button state
