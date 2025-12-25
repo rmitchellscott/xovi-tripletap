@@ -8,6 +8,9 @@ A power button handler for reMarkable devices that enables starting [xovi](https
 
 Original script concept by [@FouzR](https://github.com/FouzR).
 
+> [!NOTE]
+> There are several programs (such as freemarkable and readmarkable) that bundle parts or all of xovi-tripletap for installation. I do not recommend them nor provide support for those who choose to use them.
+
 ## Disclaimer
 
   **USE AT YOUR OWN RISK**
