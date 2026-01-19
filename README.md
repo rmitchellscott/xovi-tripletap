@@ -28,6 +28,12 @@ Original script concept by [@FouzR](https://github.com/FouzR).
 
 ## Installation
 
+### Via [Vellum package manager](https://github.com/vellum-dev/vellum)
+
+`vellum install tripletap`
+
+### Automatic Installation
+
 > [!CAUTION]
 > Piping code from the internet directly into `bash` can be dangerous. Make sure you trust the source and know what it will do to your system.
 
@@ -37,7 +43,7 @@ Run the automated installer on your reMarkable device:
 wget -qO- https://raw.githubusercontent.com/rmitchellscott/xovi-tripletap/main/install.sh | bash
 ```
 
-Or manually:
+### Manual Installation
 
 1. Download the install script:
    ```bash
@@ -57,15 +63,83 @@ The installer will:
 
 The service monitors power button input and triggers xovi when a triple-press is detected. By default, it will always start xovi (or restart it if already running).
 
-You can configure it to toggle xovi on/off by editing `/home/root/xovi-tripletap/main.sh` and changing:
+## Configuration
+
+All settings are stored in `/home/root/xovi-tripletap/config`. Edit this file to customize behavior:
+
+```bash
+nano /home/root/xovi-tripletap/config
+```
+
+After making changes, restart the service:
+```bash
+systemctl restart xovi-tripletap
+```
+
+### Available Settings
+
+#### TRIGGER_ACTION
+Controls how xovi behaves when triggered:
+- `"start"` (default): Always runs `/home/root/xovi/start` when triggered, even if xovi is already running
+- `"toggle"`: Toggles xovi - starts it if not running, stops it (runs `/home/root/xovi/stock`) if already running
+
+Example:
 ```bash
 TRIGGER_ACTION="toggle"
 ```
-Restart the service or reboot the tablet for the change to take effect: `systemctl restart xovi-tripletap`
 
-### Behavior modes:
-- `"start"` (default): Always runs `/home/root/xovi/start` when triggered, even if xovi is already running
-- `"toggle"`: Toggles xovi - starts it if not running, stops it (runs `/home/root/xovi/stock`) if already running
+#### ENABLE_VERSION_SWITCHING
+Enable or disable automatic qt-resource-rebuilder version switching (see Version Awareness section below):
+- `true` : Enable version switching
+- `false`(default): Disable version switching
+
+Example:
+```bash
+ENABLE_VERSION_SWITCHING=false
+```
+
+#### TIME_THRESHOLD
+Number of seconds between button presses for them to be considered consecutive. Default is `2`.
+
+Example (tighter timing):
+```bash
+TIME_THRESHOLD=1
+```
+
+#### REQUIRED_PRESSES
+Number of button presses needed to trigger the action. Default is `3` (triple-tap).
+
+Examples:
+```bash
+REQUIRED_PRESSES=2  # Double-tap
+REQUIRED_PRESSES=4  # Quad-tap
+```
+
+#### PRE_START_COMMANDS
+Array of custom commands to run before starting xovi. These run in both "start" and "toggle" modes (whenever xovi is being started). Commands are executed in order; failures are logged but don't block execution.
+
+Example:
+```bash
+PRE_START_COMMANDS=(
+    "/home/root/backup-settings.sh"
+    "echo 'xovi-tripletap: Starting xovi'"
+)
+```
+
+#### POST_START_COMMANDS
+Array of custom commands to run after starting xovi. These run in both "start" and "toggle" modes (whenever xovi has been started). Commands are executed in order; failures are logged.
+
+Example:
+```bash
+POST_START_COMMANDS=(
+    "/home/root/send-notification.sh 'xovi started'"
+    "echo 'xovi started at $(date)' >> /home/root/xovi.log"
+)
+```
+
+### Configuration Migration
+
+If you're upgrading from a previous version that used settings in `main.sh`, your settings will be automatically migrated to the new config file during installation. The migration runs automatically when you run `enable.sh` or `install.sh`.
 
 ## Uninstall
 

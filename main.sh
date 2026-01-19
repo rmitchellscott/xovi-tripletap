@@ -1,14 +1,49 @@
 #!/bin/bash
 
-# Configuration
-ENABLE_VERSION_SWITCHING=true  # Set to false to disable qt-resource-rebuilder version switching
-TRIGGER_ACTION="start"  # Action when triple-press triggered: "start" (always start) or "toggle" (on/off)
+# Default configuration values. Do not edit, use config file instead
+DEFAULT_ENABLE_VERSION_SWITCHING=false
+DEFAULT_TRIGGER_ACTION="start"
+DEFAULT_TIME_THRESHOLD=2
+DEFAULT_REQUIRED_PRESSES=3
 
-# Initialize variables
+# Load user configuration
+CONFIG_FILE="/home/root/xovi-tripletap/config"
+if [ -f "$CONFIG_FILE" ]; then
+    if source "$CONFIG_FILE" 2>/dev/null; then
+        echo "Configuration loaded from $CONFIG_FILE"
+    else
+        echo "Error: Config file is malformed, using defaults"
+        ENABLE_VERSION_SWITCHING=$DEFAULT_ENABLE_VERSION_SWITCHING
+        TRIGGER_ACTION=$DEFAULT_TRIGGER_ACTION
+        TIME_THRESHOLD=$DEFAULT_TIME_THRESHOLD
+        REQUIRED_PRESSES=$DEFAULT_REQUIRED_PRESSES
+    fi
+else
+    echo "Config file not found, creating from defaults..."
+    SCRIPT_DIR="$(dirname "$0")"
+    if [ -f "$SCRIPT_DIR/migrate-to-config.sh" ]; then
+        bash "$SCRIPT_DIR/migrate-to-config.sh"
+        source "$CONFIG_FILE"
+    else
+        echo "Warning: migrate-to-config.sh not found, using in-memory defaults"
+        ENABLE_VERSION_SWITCHING=$DEFAULT_ENABLE_VERSION_SWITCHING
+        TRIGGER_ACTION=$DEFAULT_TRIGGER_ACTION
+        TIME_THRESHOLD=$DEFAULT_TIME_THRESHOLD
+        REQUIRED_PRESSES=$DEFAULT_REQUIRED_PRESSES
+    fi
+fi
+
+# Apply defaults for any missing variables
+: ${ENABLE_VERSION_SWITCHING:=$DEFAULT_ENABLE_VERSION_SWITCHING}
+: ${TRIGGER_ACTION:=$DEFAULT_TRIGGER_ACTION}
+: ${TIME_THRESHOLD:=$DEFAULT_TIME_THRESHOLD}
+: ${REQUIRED_PRESSES:=$DEFAULT_REQUIRED_PRESSES}
+: ${PRE_START_COMMANDS:=()}
+: ${POST_START_COMMANDS:=()}
+
+# Initialize runtime variables
 BUTTON_PRESSES=0
 LAST_PRESS_TIME=0
-TIME_THRESHOLD=2  # seconds between presses to be considered consecutive
-REQUIRED_PRESSES=3
 
 # Detect device model and set appropriate input device
 if grep -q "reMarkable 1.0" /proc/device-tree/model 2>/dev/null; then
@@ -17,9 +52,8 @@ else
     INPUT_DEVICE="/dev/input/event0"
 fi
 
-EVTEST_PATH="/home/root/xovi-tripletap/evtest"  # Change this to your evtest executable path
+EVTEST_PATH="/home/root/xovi-tripletap/evtest"
 
-# Check if evtest executable exists and is executable
 if [ ! -x "$EVTEST_PATH" ]; then
     echo "Error: evtest not found or not executable at $EVTEST_PATH"
     exit 1
@@ -48,11 +82,39 @@ trigger_action() {
             /home/root/xovi/stock
         else
             echo "xovi is not running - starting it"
+
+            # Run pre-start commands
+            for cmd in "${PRE_START_COMMANDS[@]}"; do
+                echo "Running pre-start command: $cmd"
+                eval "$cmd" || echo "Warning: Pre-start command failed (continuing anyway)"
+            done
+
+            # Start xovi
             /home/root/xovi/start
+
+            # Run post-start commands
+            for cmd in "${POST_START_COMMANDS[@]}"; do
+                echo "Running post-start command: $cmd"
+                eval "$cmd" || echo "Warning: Post-start command failed"
+            done
         fi
     else
         # Default "start" mode - always run start
+
+        # Run pre-start commands
+        for cmd in "${PRE_START_COMMANDS[@]}"; do
+            echo "Running pre-start command: $cmd"
+            eval "$cmd" || echo "Warning: Pre-start command failed (continuing anyway)"
+        done
+
+        # Start xovi
         /home/root/xovi/start
+
+        # Run post-start commands
+        for cmd in "${POST_START_COMMANDS[@]}"; do
+            echo "Running post-start command: $cmd"
+            eval "$cmd" || echo "Warning: Post-start command failed"
+        done
     fi
 }
 

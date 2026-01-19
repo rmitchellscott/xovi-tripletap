@@ -1,0 +1,39 @@
+# xovi-tripletap Configuration File
+# Location: /home/root/xovi-tripletap/config
+#
+# This file contains user-editable settings for xovi-tripletap.
+# After making changes, restart the service:
+#   systemctl restart xovi-tripletap
+
+# Version switching for qt-resource-rebuilder
+# Set to false to disable automatic version detection and switching
+ENABLE_VERSION_SWITCHING=false
+
+# Trigger action mode
+# "start" - always start xovi (or restart if already running)
+# "toggle" - toggle xovi on/off
+TRIGGER_ACTION="start"
+
+# Triple-tap detection settings
+TIME_THRESHOLD=2        # seconds between presses to be considered consecutive
+REQUIRED_PRESSES=3      # number of presses needed to trigger action (2=double-tap, 3=triple-tap, etc.)
+
+# Custom commands to run before starting xovi
+# These run in both "start" and "toggle" modes (whenever xovi is being started)
+# Commands are executed in order; failures are logged but don't block execution
+# Example:
+#   PRE_START_COMMANDS=(
+#       "/home/root/backup-settings.sh"
+#       "echo 'Starting xovi'"
+#   )
+PRE_START_COMMANDS=()
+
+# Custom commands to run after starting xovi
+# These run in both "start" and "toggle" modes (whenever xovi has been started)
+# Commands are executed in order; failures are logged
+# Example:
+#   POST_START_COMMANDS=(
+#       "/home/root/send-notification.sh 'xovi started'"
+#       "echo 'xovi started at $(date)' >> /home/root/xovi.log"
+#   )
+POST_START_COMMANDS=()

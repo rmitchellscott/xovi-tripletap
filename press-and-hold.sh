@@ -3,7 +3,7 @@
 # Initialize variables
 TARGET_KEY="KEY_LEFT"  # Configurable key to monitor (KEY_HOME, KEY_LEFT, KEY_RIGHT, KEY_POWER, KEY_WAKEUP)
 HOLD_TIME=3           # Hold time in seconds
-ENABLE_VERSION_SWITCHING=true  # Set to false to disable qt-resource-rebuilder version switching
+ENABLE_VERSION_SWITCHING=false  # Set to true to enable qt-resource-rebuilder version switching
 TRIGGER_ACTION="start"  # Action when hold triggered: "start" (always start) or "toggle" (on/off)
 
 # Key name to code mapping

@@ -9,6 +9,11 @@ if grep -qE "reMarkable (Ferrari|Chiappa)" /proc/device-tree/model 2>/dev/null; 
     umount -R /etc || true
 fi
 
+echo "Checking for configuration migration..."
+if [ -f /home/root/xovi-tripletap/migrate-to-config.sh ]; then
+    /home/root/xovi-tripletap/migrate-to-config.sh
+fi
+
 echo "Installing systemd service..."
 cp /home/root/xovi-tripletap/xovi-tripletap.service /etc/systemd/system/
 
