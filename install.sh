@@ -40,6 +40,21 @@ case $ARCH in
 esac
 
 echo "Copying files from downloaded source..."
+
+# Copy migration script and config.default first, then run migration
+# This must happen BEFORE copying new main.sh to preserve user settings from old main.sh
+cp "$SOURCE_DIR/migrate-to-config.sh" .
+chmod +x migrate-to-config.sh
+cp "$SOURCE_DIR/config.default" .
+
+if [ ! -f config ]; then
+    echo "Running migration to create config file..."
+    ./migrate-to-config.sh
+else
+    echo "Existing config file preserved"
+fi
+
+# Now safe to copy remaining files including new main.sh
 cp "$SOURCE_DIR/evtest.$EVTEST_ARCH" evtest
 chmod +x evtest
 
