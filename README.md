@@ -263,7 +263,8 @@ Four times the buttons, four times the fun!
 Feel free to tweak the main.sh script to handle other button presses. I've included a press-and-hold.sh script as an example, which lets you configure one of the buttons to launch xovi if you hold it for 3 seconds.
 
 ## License
+Copyright (C) 2025 Mitchell Scott
 
-This project is licensed under the MIT License - see the LICENSE file for details.
+Licensed under the GNU General Public License v3.0.
 
 The included `evtest` binaries are distributed under the GNU General Public License v2.0. Source code for evtest is available at: https://cgit.freedesktop.org/evtest/
