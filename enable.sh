@@ -3,7 +3,7 @@
 set -e
 
 echo "Detecting device type..."
-if grep -qE "reMarkable (Ferrari|Chiappa)" /proc/device-tree/model 2>/dev/null; then
+if grep -qE "reMarkable (Ferrari|Chiappa|Tatsu)" /proc/device-tree/model 2>/dev/null; then
     echo "Detected reMarkable Paper Pro family - remounting filesystem..."
     mount -o remount,rw /
     umount -R /etc || true
