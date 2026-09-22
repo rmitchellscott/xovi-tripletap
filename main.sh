@@ -38,8 +38,6 @@ fi
 : ${TRIGGER_ACTION:=$DEFAULT_TRIGGER_ACTION}
 : ${TIME_THRESHOLD:=$DEFAULT_TIME_THRESHOLD}
 : ${REQUIRED_PRESSES:=$DEFAULT_REQUIRED_PRESSES}
-: ${PRE_START_COMMANDS:=()}
-: ${POST_START_COMMANDS:=()}
 
 # Initialize runtime variables
 BUTTON_PRESSES=0
@@ -64,6 +62,74 @@ if [ "$ENABLE_VERSION_SWITCHING" = "true" ] && [ -f "/home/root/xovi-tripletap/v
     source /home/root/xovi-tripletap/version-switcher.sh
 fi
 
+xochitl_cpu_activity() {
+    cat /proc/"$1"/task/*/stat 2>/dev/null | awk '{ticks += $14 + $15; if ($3 == "R") running = 1} END {print ticks + 0, running + 0}'
+}
+
+wait_for_xochitl_idle() {
+    local quiet_needed_ms=$1
+    local timeout_ms=$2
+    local poll_ms=50
+    local xochitl_pid
+    xochitl_pid=$(pidof xochitl) || return 0
+
+    local waited_ms=0
+    local quiet_ms=0
+    local activity
+    local last_activity
+    last_activity=$(xochitl_cpu_activity "$xochitl_pid")
+
+    while [ "$waited_ms" -lt "$timeout_ms" ]; do
+        sleep 0.05
+        waited_ms=$((waited_ms + poll_ms))
+        activity=$(xochitl_cpu_activity "$xochitl_pid")
+        if [ "$activity" = "$last_activity" ] && [ "${activity#* }" = "0" ]; then
+            quiet_ms=$((quiet_ms + poll_ms))
+        else
+            quiet_ms=0
+        fi
+        last_activity=$activity
+        if [ "$quiet_ms" -ge "$quiet_needed_ms" ]; then
+            echo "xochitl idle after ${waited_ms}ms"
+            return 0
+        fi
+    done
+
+    echo "Warning: xochitl still busy after ${timeout_ms}ms, continuing anyway"
+    return 1
+}
+
+version_at_least() {
+    local current=$1
+    local required=$2
+    local IFS=.
+    local -a current_parts=($current)
+    local -a required_parts=($required)
+    local i
+    for ((i = 0; i < ${#current_parts[@]} || i < ${#required_parts[@]}; i++)); do
+        local current_part=${current_parts[i]//[!0-9]/}
+        local required_part=${required_parts[i]//[!0-9]/}
+        current_part=$((10#${current_part:-0}))
+        required_part=$((10#${required_part:-0}))
+        [ "$current_part" -gt "$required_part" ] && return 0
+        [ "$current_part" -lt "$required_part" ] && return 1
+    done
+    return 0
+}
+
+read_os_version() {
+    (grep 'RELEASE_VERSION=' /usr/share/remarkable/update.conf 2>/dev/null || \
+     grep 'IMG_VERSION=' /etc/os-release 2>/dev/null) | \
+        head -n 1 | \
+        sed 's/.*=//;s/"//g'
+}
+
+xochitl_restart_needs_idle_wait() {
+    local os_version
+    os_version=$(read_os_version)
+    [ -z "$os_version" ] || version_at_least "$os_version" 3.28
+}
+
 # Function to run when button sequence is detected
 trigger_action() {
     echo "Button sequence detected - running action script"
@@ -72,6 +138,11 @@ trigger_action() {
     if [ "$ENABLE_VERSION_SWITCHING" = "true" ] && type switch_qt_resource_version >/dev/null 2>&1; then
         echo "Checking qt-resource-rebuilder version..."
         switch_qt_resource_version
+    fi
+
+    if xochitl_restart_needs_idle_wait; then
+        echo "Waiting for xochitl screen updates to finish..."
+        wait_for_xochitl_idle 300 6000
     fi
 
     # Handle toggle mode
